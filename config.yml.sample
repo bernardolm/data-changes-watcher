@@ -1,0 +1,19 @@
+database:
+  host: 'localhost'
+  user: 'user'
+  password: 'pass'
+  database: 'mydatabase'
+  port: 3306
+
+polling_interval: 5000
+
+entities:
+  - table_1:
+    last_update: '2016-03-10'
+    updated_at_column: 'update_at'
+    query: 'SELECT id, update_at FROM table_1 WHERE update_at > ? ORDER BY update_at ASC'
+
+  - table_2:
+    last_update: '2016-03-10'
+    updated_at_column: 'update_at'
+    query: 'SELECT id, update_at FROM table_2 WHERE update_at > ? ORDER BY update_at ASC'
