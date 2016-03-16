@@ -11,6 +11,7 @@ var connection = mysql.createConnection(config_file.database);
 connection.connect(function (err) {
   if (err) {
     console.log('connection err', err);
+    throw err;
   }
 });
 
