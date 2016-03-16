@@ -15,46 +15,59 @@ connection.connect(function (err) {
   }
 });
 
-var polling = function () {
-
-  var now = new Date();
-
-  console.log('quering', config_file.entities[0].query.replace('?', config_file.entities[0].last_update));
-
-  connection.query(
-    config_file.entities[0].query,
-    [config_file.entities[0].last_update],
-    function(err, rows, fields) {
-
-      if (err) {
-        console.log('query err', err);
-        return;
-      }
-
-      if (rows.length === 0) {
-        console.log('no results. last update', now.toLocaleString(), '\n');
-        config_file.entities[0].last_update = now.toLocaleString();
-        polling_timer = setTimeout(polling, POLLING_INTERVAL);
-        return;
-      }
-
-      console.log(rows.length, 'rows updated');
-
-      for (var i = 0; i < rows.length; i++) {
-        doSomethingWithRow(rows[i]);
-
-        if (i + 1 === rows.length) {
-          console.log('end of rows\n');
-          config_file.entities[0].last_update = rows[i][config_file.entities[0].updated_at_column].toLocaleString();
-          polling_timer = setTimeout(polling, POLLING_INTERVAL);
-        }
-      }
-
-    });
-};
-
 var doSomethingWithRow = function (row) {
   console.dir(row);
 };
 
-polling();
+function queryHandler (err, rows, fields) {
+  if (err) {
+    console.log('query err', err);
+    return;
+  }
+
+  if (rows.length === 0) {
+    console.log('no results for', this.name + '.\n');
+    setTimeout(this.checkChanges.bind(this), POLLING_INTERVAL);
+    return;
+  }
+
+  console.log(rows.length, 'rows updated of', this.name);
+
+  for (var i = 0; i < rows.length; i++) {
+    doSomethingWithRow(rows[i]);
+
+    if (i + 1 === rows.length) {
+      console.log('end of rows\n');
+      this.last_update = rows[i][this.updated_at_column].toLocaleString();
+      setTimeout(this.checkChanges.bind(this), POLLING_INTERVAL);
+      return;
+    }
+  };
+};
+
+function checkChanges () {
+  console.log('quering', this.name, 'for updateds later than', this.last_update);
+
+  connection.query(
+    this.query,
+    [this.last_update],
+    queryHandler.bind(this)
+  );
+};
+
+function Worker (config) {
+  this.name = config.name;
+  this.last_update = config.last_update;
+  this.updated_at_column = config.updated_at_column;
+  this.query = config.query;
+  this.checkChanges = checkChanges;
+};
+
+function initPolling () {
+  for (var i in config_file.entities) {
+    var worker = new Worker(config_file.entities[i]);
+    worker.checkChanges();
+  }
+};
+
+initPolling();

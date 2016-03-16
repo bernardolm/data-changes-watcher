@@ -1,0 +1,3 @@
+* Configurar via YML os atributos da mensagem fazendo replace na url pelo nome do atributo
+* Usar sistema de log
+* Guardar última data de consulta de data guardada no Redis. No start, caso não haja dados no Redis, usar a do YML
