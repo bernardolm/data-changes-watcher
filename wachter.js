@@ -15,8 +15,10 @@ connection.connect(function (err) {
   }
 });
 
-var doSomethingWithRow = function (row) {
+function doSomethingWithRow (row) {
+  console.log('');
   console.dir(row);
+  console.log('');
 };
 
 function queryHandler (err, rows, fields) {
@@ -26,7 +28,7 @@ function queryHandler (err, rows, fields) {
   }
 
   if (rows.length === 0) {
-    console.log('no results for', this.name + '.\n');
+    console.log('no results for', this.name);
     setTimeout(this.checkChanges.bind(this), POLLING_INTERVAL);
     return;
   }
@@ -37,7 +39,7 @@ function queryHandler (err, rows, fields) {
     doSomethingWithRow(rows[i]);
 
     if (i + 1 === rows.length) {
-      console.log('end of rows\n');
+      console.log('end of rows of', this.name);
       this.last_update = rows[i][this.updated_at_column].toLocaleString();
       setTimeout(this.checkChanges.bind(this), POLLING_INTERVAL);
       return;
