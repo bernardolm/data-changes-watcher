@@ -16,10 +16,16 @@ connection.connect(function (err) {
   }
 });
 
-function entityRowHandler (row) {
-  console.log('');
-  console.dir(row);
-  console.log('');
+function entityRowHandler (row, worker) {
+  var payload = {};
+
+  for (var p in worker.message_elements) {
+    if (worker.message_elements.hasOwnProperty(p)) {
+      payload[p] = worker.message_elements[p].replace('{id}', row[p]);
+    }
+  }
+
+  console.dir(payload);
 };
 
 function queryHandler (err, rows, fields) {
@@ -37,7 +43,7 @@ function queryHandler (err, rows, fields) {
   console.log(rows.length, 'rows updated of', this.name);
 
   for (var i = 0; i < rows.length; i++) {
-    entityRowHandler(rows[i]);
+    entityRowHandler(rows[i], this);
 
     if (i + 1 === rows.length) {
       console.log('end of rows of', this.name);
