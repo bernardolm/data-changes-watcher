@@ -2,14 +2,9 @@ var mysql = require('mysql'),
     yaml = require('js-yaml'),
     fs = require('fs'),
     extend = require('extend'),
-    logger = require('winston'),
-    polling_timer,
-    config = [],
+    logger = require("./logger"),
     config_file = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8')),
     POLLING_INTERVAL = config_file.polling_interval;
-
-logger.add(require('winston-graylog2'), {});
-logger.level = 'debug';
 
 var connection = mysql.createConnection(config_file.database);
 
