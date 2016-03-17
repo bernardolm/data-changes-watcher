@@ -16,6 +16,10 @@ connection.connect(function (err) {
 });
 
 function entityRowHandler (row, worker) {
+  if (!worker.message_elements) {
+    return;
+  }
+
   var payload = {};
 
   for (var p in worker.message_elements) {
@@ -24,7 +28,7 @@ function entityRowHandler (row, worker) {
     }
   }
 
-  logger.debug('message payload', payload);
+  logger.debug('message payload of %s', worker.name, payload);
 };
 
 function queryHandler (err, rows, fields) {

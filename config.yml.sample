@@ -14,8 +14,8 @@ entities:
     updated_at_column: 'update_at'
     query: 'SELECT id, update_at FROM table_1 WHERE update_at > ? ORDER BY update_at ASC'
     message_elements:
-      id: http://api.site.com/resource/{id}
-      id2: http://api.site.com/resource/{id2}
+      id: 'http://api.site.com/resource/{id}'
+      id2: 'http://api.site.com/resource/{id}'
 
   table_2:
     name: 'table_1'
@@ -23,5 +23,5 @@ entities:
     updated_at_column: 'update_at'
     query: 'SELECT id, id2, update_at FROM table_2 WHERE update_at > ? ORDER BY update_at ASC'
     message_elements:
-      id: http://api.site.com/resource/{id}
-      id2: http://api.site.com/resource/{id2}
+      id: 'http://api.site.com/resource/{id}'
+      id2: '{id}'
