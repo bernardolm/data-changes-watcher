@@ -2,16 +2,20 @@ var mysql = require('mysql'),
     yaml = require('js-yaml'),
     fs = require('fs'),
     extend = require('extend'),
+    logger = require('winston'),
     polling_timer,
     config = [],
     config_file = yaml.safeLoad(fs.readFileSync('config.yml', 'utf8')),
     POLLING_INTERVAL = config_file.polling_interval;
 
+logger.add(require('winston-graylog2'), {});
+logger.level = 'debug';
+
 var connection = mysql.createConnection(config_file.database);
 
 connection.connect(function (err) {
   if (err) {
-    console.log('connection err', err);
+    logger.error('connection error', err);
     throw err;
   }
 });
@@ -25,28 +29,28 @@ function entityRowHandler (row, worker) {
     }
   }
 
-  console.dir(payload);
+  logger.debug('message payload', payload);
 };
 
 function queryHandler (err, rows, fields) {
   if (err) {
-    console.log('query err', err);
+    logger.error('query error', err);
     return;
   }
 
   if (rows.length === 0) {
-    console.log('no results for', this.name);
+    logger.info('no results for %s', this.name);
     setTimeout(this.checkChanges.bind(this), POLLING_INTERVAL);
     return;
   }
 
-  console.log(rows.length, 'rows updated of', this.name);
+  logger.info('%d rows updated of %s', rows.length, this.name);
 
   for (var i = 0; i < rows.length; i++) {
     entityRowHandler(rows[i], this);
 
     if (i + 1 === rows.length) {
-      console.log('end of rows of', this.name);
+      logger.info('end of rows of %s', this.name);
       this.last_update = rows[i][this.updated_at_column].toLocaleString();
       setTimeout(this.checkChanges.bind(this), POLLING_INTERVAL);
       return;
@@ -55,7 +59,7 @@ function queryHandler (err, rows, fields) {
 };
 
 function checkChanges () {
-  console.log('quering', this.name, 'for updateds later than', this.last_update);
+  logger.info('quering %s for updateds later than %s', this.name, this.last_update);
 
   connection.query(
     this.query,
