@@ -58,7 +58,7 @@ function queryHandler (err, rows, fields) {
 };
 
 function checkChanges () {
-  logger.info('quering %s for updateds later than %s', this.name, this.last_update);
+  logger.info('querying %s for updateds later than %s', this.name, this.last_update);
 
   connection.query(
     this.query,
